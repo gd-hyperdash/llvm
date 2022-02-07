@@ -25,6 +25,21 @@
 #include <iterator>
 #include <memory>
 
+namespace ml {
+namespace flags {
+constexpr auto NONE = 0x00;
+constexpr auto DISPATCHER = 0x01;
+constexpr auto TAIL = 0x02;
+constexpr auto OPTIONAL = 0x04;
+constexpr auto LOCKING = 0x08;
+constexpr auto DYNAMIC_TARGET = 0x10;
+} // namespace flags
+constexpr char DYNAMIC[] = "ml.dynamic_linkage";
+constexpr char DYNAMIC_ARRAY[] = "ml.global_dynamics";
+constexpr char DECORATOR[] = "ml.decorator";
+constexpr char DECORATOR_ARRAY[] = "ml.global_decorators";
+} // namespace ml
+
 namespace llvm {
 
 class APInt;

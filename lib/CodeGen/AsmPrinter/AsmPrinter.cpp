@@ -2265,6 +2265,16 @@ bool AsmPrinter::emitSpecialLLVMGlobal(const GlobalVariable *GV) {
     return true;
   }
 
+  if (GV->getName() == ml::DYNAMIC_ARRAY) {
+    emitDynamicList(GV->getParent()->getDataLayout(), GV->getInitializer());
+    return true;
+  }
+
+  if (GV->getName() == ml::DECORATOR_ARRAY) {
+    emitDecoratorList(GV->getParent()->getDataLayout(), GV->getInitializer());
+    return true;
+  }
+
   report_fatal_error("unknown special variable");
 }
 
@@ -2352,6 +2362,68 @@ void AsmPrinter::emitXXStructorList(const DataLayout &DL, const Constant *List,
     if (OutStreamer->getCurrentSection() != OutStreamer->getPreviousSection())
       emitAlignment(Align);
     emitXXStructor(DL, S.Func);
+  }
+}
+
+void AsmPrinter::emitDynamicList(const DataLayout &DL, const Constant *List) {
+  // Should be an array of '{ i8*, i8*, i8*, i8* }' structs.
+  if (!isa<ConstantArray>(List))
+    return;
+
+  // Gather the dynamics.
+  SmallVector<Dynamic, 8> Dynamics;
+  for (Value *O : cast<ConstantArray>(List)->operands()) {
+    auto *CS = cast<ConstantStruct>(O);
+    Dynamics.push_back(Dynamic());
+    Dynamic &D = Dynamics.back();
+    D.Func = CS->getOperand(0);
+    D.Sym = CS->getOperand(1);
+    D.Rec = CS->getOperand(2);
+    D.MID = CS->getOperand(3);
+  }
+
+  // Emit the dynamics.
+  const Align Align = DL.getPointerPrefAlignment();
+  for (Dynamic &D : Dynamics) {
+    const TargetLoweringObjectFile &Obj = getObjFileLowering();
+    MCSection *OutputSection = Obj.getDynamicSection();
+    OutStreamer->SwitchSection(OutputSection);
+    if (OutStreamer->getCurrentSection() != OutStreamer->getPreviousSection())
+      emitAlignment(Align);
+    emitGlobalConstant(DL, D.Func);
+    emitGlobalConstant(DL, D.Sym);
+    emitGlobalConstant(DL, D.Rec);
+    emitGlobalConstant(DL, D.MID);
+  }
+}
+
+void AsmPrinter::emitDecoratorList(const DataLayout &DL, const Constant *List) {
+  // Should be an array of '{ i8*, i8*, u64 }' structs.
+  if (!isa<ConstantArray>(List))
+    return;
+
+  // Gather the decorators.
+  SmallVector<Decorator, 8> Decorators;
+  for (Value *O : cast<ConstantArray>(List)->operands()) {
+    auto *CS = cast<ConstantStruct>(O);
+    Decorators.push_back(Decorator());
+    Decorator &D = Decorators.back();
+    D.Target = CS->getOperand(0);
+    D.Deco = CS->getOperand(1);
+    D.Flags = CS->getOperand(2);
+  }
+
+  // Emit the decorators.
+  const Align Align = DL.getPointerPrefAlignment();
+  for (Decorator &D : Decorators) {
+    const TargetLoweringObjectFile &Obj = getObjFileLowering();
+    MCSection *OutputSection = Obj.getDecoratorSection();
+    OutStreamer->SwitchSection(OutputSection);
+    if (OutStreamer->getCurrentSection() != OutStreamer->getPreviousSection())
+      emitAlignment(Align);
+    emitGlobalConstant(DL, D.Target);
+    emitGlobalConstant(DL, D.Deco);
+    emitGlobalConstant(DL, D.Flags);
   }
 }
 

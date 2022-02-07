@@ -416,6 +416,34 @@ public:
     Structor() = default;
   };
 
+  /// `ml.global_dynamics` is an array of Dynamic structs.
+  ///
+  /// Func - dynamic function
+  /// Sym - lookup symbol
+  /// Rec - function record
+  /// MID - module ID
+  struct Dynamic {
+    Constant *Func = nullptr;
+    Constant *Sym = nullptr;
+    Constant *Rec = nullptr;
+    Constant *MID = nullptr;
+
+    Dynamic() = default;
+  };
+
+  /// `ml.global_decorators` is an array of Decorator structs.
+  ///
+  /// Func - target function
+  /// Deco - decorator
+  /// Flags - flags
+  struct Decorator {
+    Constant *Target = nullptr;
+    Constant *Deco = nullptr;
+    Constant *Flags = nullptr;
+
+    Decorator() = default;
+  };
+
   /// This method gathers an array of Structors and then sorts them out by
   /// Priority.
   /// @param List The initializer of `llvm.global_ctors` or `llvm.global_dtors`
@@ -427,6 +455,12 @@ public:
   /// This method emits `llvm.global_ctors` or `llvm.global_dtors` list.
   virtual void emitXXStructorList(const DataLayout &DL, const Constant *List,
                                   bool IsCtor);
+
+  /// This method emits `ml.global_dynamics` list.
+  void emitDynamicList(const DataLayout &DL, const Constant *List);
+
+  /// This method emits `ml.global_decorators` list.
+  void emitDecoratorList(const DataLayout &DL, const Constant *List);
 
   /// Emit an alignment directive to the specified power of two boundary. If a
   /// global value is specified, and if that global has an explicit alignment

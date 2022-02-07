@@ -57,6 +57,12 @@ protected:
   unsigned TTypeEncoding = 0;
   unsigned CallSiteEncoding = 0;
 
+  /// This section contains the dynamic list.
+  MCSection *DynamicSection = nullptr;
+
+  // This section contains the decorator list.
+  MCSection *DecoratorSection = nullptr;
+
   /// This section contains the static constructor pointer list.
   MCSection *StaticCtorSection = nullptr;
 
@@ -170,6 +176,9 @@ public:
 
   const MCExpr *getTTypeReference(const MCSymbolRefExpr *Sym, unsigned Encoding,
                                   MCStreamer &Streamer) const;
+
+  MCSection *getDynamicSection() const { return DynamicSection; }
+  MCSection *getDecoratorSection() const { return DecoratorSection; }
 
   virtual MCSection *getStaticCtorSection(unsigned Priority,
                                           const MCSymbol *KeySym) const {

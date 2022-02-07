@@ -34,9 +34,12 @@
 #include "llvm/Transforms/AggressiveInstCombine/AggressiveInstCombine.h"
 #include "llvm/Transforms/IPO.h"
 #include "llvm/Transforms/IPO/Attributor.h"
+#include "llvm/Transforms/IPO/Decorator.h"
+#include "llvm/Transforms/IPO/DynamicLinkage.h"
 #include "llvm/Transforms/IPO/ForceFunctionAttrs.h"
 #include "llvm/Transforms/IPO/FunctionAttrs.h"
 #include "llvm/Transforms/IPO/InferFunctionAttrs.h"
+#include "llvm/Transforms/IPO/LinkName.h"
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Instrumentation.h"
 #include "llvm/Transforms/Scalar.h"
@@ -657,6 +660,8 @@ void PassManagerBuilder::populateModulePassManager(
   bool DefaultOrPreLinkPipeline = !PerformThinLTO;
 
   MPM.add(createAnnotation2MetadataLegacyPass());
+  MPM.add(createDecoratorLegacyPass());
+  MPM.add(createDynamicLinkageLegacyPass());
 
   if (!PGOSampleUse.empty()) {
     MPM.add(createPruneEHPass());

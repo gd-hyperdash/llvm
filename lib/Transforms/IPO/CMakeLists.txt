@@ -10,6 +10,8 @@ add_llvm_component_library(LLVMipo
   ConstantMerge.cpp
   CrossDSOCFI.cpp
   DeadArgumentElimination.cpp
+  Decorator.cpp
+  DynamicLinkage.cpp
   ElimAvailExtern.cpp
   ExtractGV.cpp
   ForceFunctionAttrs.cpp

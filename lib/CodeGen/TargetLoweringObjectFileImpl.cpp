@@ -70,6 +70,9 @@
 using namespace llvm;
 using namespace dwarf;
 
+static std::string const ML_DYN_SECTION(".mldyn");
+static std::string const ML_DECO_SECTION(".mldeco");
+
 static void GetObjCImageInfo(Module &M, unsigned &Version, unsigned &Flags,
                              StringRef &Section) {
   SmallVector<Module::ModuleFlagEntry, 8> ModuleFlags;
@@ -1120,6 +1123,13 @@ void
 TargetLoweringObjectFileELF::InitializeELF(bool UseInitArray_) {
   UseInitArray = UseInitArray_;
   MCContext &Ctx = getContext();
+
+  DynamicSection =
+      Ctx.getELFSection(ML_DYN_SECTION, ELF::SHT_PROGBITS, ELF::SHF_ALLOC);
+
+  DecoratorSection =
+      Ctx.getELFSection(ML_DECO_SECTION, ELF::SHT_PROGBITS, ELF::SHF_ALLOC);
+
   if (!UseInitArray) {
     StaticCtorSection = Ctx.getELFSection(".ctors", ELF::SHT_PROGBITS,
                                           ELF::SHF_ALLOC | ELF::SHF_WRITE);
@@ -1147,6 +1157,13 @@ TargetLoweringObjectFileMachO::TargetLoweringObjectFileMachO()
 void TargetLoweringObjectFileMachO::Initialize(MCContext &Ctx,
                                                const TargetMachine &TM) {
   TargetLoweringObjectFile::Initialize(Ctx, TM);
+
+  DynamicSection =
+      Ctx.getMachOSection("__DATA", ML_DYN_SECTION, 0, SectionKind::getData());
+
+  DecoratorSection =
+      Ctx.getMachOSection("__DATA", ML_DECO_SECTION, 0, SectionKind::getData());
+
   if (TM.getRelocationModel() == Reloc::Static) {
     StaticCtorSection = Ctx.getMachOSection("__TEXT", "__constructor", 0,
                                             SectionKind::getData());
@@ -1827,6 +1844,17 @@ void TargetLoweringObjectFileCOFF::Initialize(MCContext &Ctx,
   TargetLoweringObjectFile::Initialize(Ctx, TM);
   this->TM = &TM;
   const Triple &T = TM.getTargetTriple();
+
+  DynamicSection = Ctx.getCOFFSection(ML_DYN_SECTION,
+                                      COFF::IMAGE_SCN_CNT_INITIALIZED_DATA |
+                                          COFF::IMAGE_SCN_MEM_READ,
+                                      SectionKind::getReadOnly());
+
+  DecoratorSection = Ctx.getCOFFSection(ML_DECO_SECTION,
+                                        COFF::IMAGE_SCN_CNT_INITIALIZED_DATA |
+                                            COFF::IMAGE_SCN_MEM_READ,
+                                        SectionKind::getReadOnly());
+
   if (T.isWindowsMSVCEnvironment() || T.isWindowsItaniumEnvironment()) {
     StaticCtorSection =
         Ctx.getCOFFSection(".CRT$XCU", COFF::IMAGE_SCN_CNT_INITIALIZED_DATA |

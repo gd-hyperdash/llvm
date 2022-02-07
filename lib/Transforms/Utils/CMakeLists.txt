@@ -50,6 +50,7 @@ add_llvm_component_library(LLVMTransformUtils
   MemoryOpRemark.cpp
   Mem2Reg.cpp
   MetaRenamer.cpp
+  MLUtils.cpp
   ModuleUtils.cpp
   NameAnonGlobals.cpp
   PredicateInfo.cpp
