@@ -17,8 +17,8 @@ using namespace llvm;
 // Types
 //===--------------------------------------------------------------------===//
 
-using Traps = llvm::SmallVector<IntrinsicInst *, 4>;
-using Ends = llvm::SmallVector<Instruction *, 4>;
+using Traps = llvm::SmallVector<IntrinsicInst *, 4u>;
+using Ends = llvm::SmallVector<Instruction *, 4u>;
 
 //===--------------------------------------------------------------------===//
 // Globals
