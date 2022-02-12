@@ -101,6 +101,7 @@ static void GeneratePadding(LLVMContext &Context, const Triple::ArchType Arch,
     // ret
     // 14 bytes
     N = 14 / PAD_SIZE_X;
+    break;
   case Triple::x86:
     // jmp rel32
     // 5 bytes

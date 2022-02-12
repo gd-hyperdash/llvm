@@ -147,10 +147,6 @@ public:
 // Helpers
 //===--------------------------------------------------------------------===//
 
-static void ShowDebugString(StringRef S) {
-  LLVM_DEBUG(llvm::dbgs() << "Decorator Handler: " << S << '\n');
-}
-
 static std::string GetDispatcherName(Module &M, Function &B) {
   MD5 Hash;
   MD5::MD5Result Ret;
