@@ -68,9 +68,6 @@ bool IsOptionalDecorator(Function &D);
 /// Check whether a decorator is locking.
 bool IsLockingDecorator(Function &D);
 
-/// Get the number of arguments that are saved for a tail.
-std::uint64_t GetTailArgCount(Function &D);
-
 /// Add decorator to global list.
 void AppendToDecoratorArray(Module &M, const DecoratorEntry &Entry);
 

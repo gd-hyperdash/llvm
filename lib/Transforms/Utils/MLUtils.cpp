@@ -14,7 +14,7 @@ using namespace llvm;
 //===--------------------------------------------------------------------===//
 
 static auto constexpr DYNAMIC_OP_SIZE = 2u; // Record - MID
-static auto constexpr DECORATOR_OP_SIZE = 3u; // Sym - Flags - TailArgSize
+static auto constexpr DECORATOR_OP_SIZE = 2u; // Sym - Flags
 
 //===--------------------------------------------------------------------===//
 // Helpers
@@ -46,15 +46,6 @@ static std::uint64_t GetDecoratorFlags(Function &D) {
   assert(MD && "No metadata!");
   return cast<ConstantInt>(
              cast<ConstantAsMetadata>(MD->getOperand(1u))->getValue())
-      ->getZExtValue();
-}
-
-// Get decorator arg count.
-static std::uint64_t GetDecoratorArgCount(Function &D) {
-  auto MD = GetDecoratorMD(D);
-  assert(MD && "No metadata!");
-  return cast<ConstantInt>(
-             cast<ConstantAsMetadata>(MD->getOperand(2u))->getValue())
       ->getZExtValue();
 }
 
@@ -194,10 +185,6 @@ bool llvm::IsOptionalDecorator(Function &D) {
 
 bool llvm::IsLockingDecorator(Function &D) {
   return GetDecoratorFlags(D) & ml::flags::LOCKING;
-}
-
-std::uint64_t llvm::GetTailArgCount(Function &D) {
-  return GetDecoratorArgCount(D);
 }
 
 void llvm::AppendToDecoratorArray(Module &M, const DecoratorEntry &Entry) {

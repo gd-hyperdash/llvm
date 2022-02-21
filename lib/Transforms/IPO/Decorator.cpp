@@ -300,7 +300,7 @@ static Function* GetOrInsertAPI(Module& M, StringRef Name) {
 //===--------------------------------------------------------------------===//
 
 static void GenerateDispatcher(Module &M, Function &B,
-                   std::uint64_t const Flags, std::size_t const TailArgCount) {
+                               std::uint64_t const Flags) {
   SmallVector<Type *, 1> TAL;
   DecoratorEntry ListEntry = {};
   auto &Context = M.getContext();
@@ -336,7 +336,8 @@ static void GenerateDispatcher(Module &M, Function &B,
 
   auto BPtr = GetFunctionAsPointer(Context, B);
   auto APIF = GetConstantNumber64(Context, DecoFlags);
-  auto First = Builder.CreateCall(FDAPI->getFunctionType(), FDAPI, {BPtr, APIF});
+  auto First =
+      Builder.CreateCall(FDAPI->getFunctionType(), FDAPI, {BPtr, APIF});
 
   // Call first decorator.
   auto Cast = Builder.CreateBitCast(First, BTy->getPointerTo());
@@ -345,12 +346,13 @@ static void GenerateDispatcher(Module &M, Function &B,
   // Add tail getter call.
   APIF = GetConstantNumber64(Context, DecoFlags | ml::flags::TAIL);
   auto NullPtr = ConstantPointerNull::get(Builder.getInt8PtrTy());
-  auto FirstTail = Builder.CreateCall(FDAPI->getFunctionType(), FDAPI, {BPtr, APIF});
+  auto FirstTail =
+      Builder.CreateCall(FDAPI->getFunctionType(), FDAPI, {BPtr, APIF});
   auto Cond = Builder.CreateCmp(llvm::CmpInst::ICMP_NE, FirstTail, NullPtr);
   Builder.CreateCondBr(Cond, TailBlock, ReturnBlock);
 
   // Prepare tail call.
-  TailTypeBuilder TTBuilder(*H, TailArgCount);
+  TailTypeBuilder TTBuilder(*H, B.arg_size());
   auto TTy = TTBuilder.Create(Context);
   Builder.SetInsertPoint(TailBlock);
   Cast = Builder.CreateBitCast(FirstTail, TTy->getPointerTo());
@@ -651,8 +653,7 @@ static bool ModuleAction(Module &M) {
     ReplaceBaseCalls(*Entry.Decorator, *Entry.Target, *T);
 
     // Insert dispatcher.
-    GenerateDispatcher(M, *Entry.Target, Entry.Flags,
-                       GetTailArgCount(*Entry.Decorator));
+    GenerateDispatcher(M, *Entry.Target, Entry.Flags);
 
     // Append to decorator list.
     AppendToDecoratorArray(M, Entry);
