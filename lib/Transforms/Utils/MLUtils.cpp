@@ -13,8 +13,10 @@ using namespace llvm;
 // Globals
 //===--------------------------------------------------------------------===//
 
+#ifndef NDEBUG
 static auto constexpr DYNAMIC_OP_SIZE = 2u; // Record - MID
 static auto constexpr DECORATOR_OP_SIZE = 2u; // Sym - Flags
+#endif
 
 //===--------------------------------------------------------------------===//
 // Helpers
