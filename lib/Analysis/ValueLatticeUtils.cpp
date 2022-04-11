@@ -21,8 +21,7 @@ bool llvm::canTrackArgumentsInterprocedurally(Function *F) {
 }
 
 bool llvm::canTrackReturnsInterprocedurally(Function *F) {
-  return F->hasExactDefinition() && !F->hasFnAttribute(Attribute::Naked) &&
-         !F->hasMetadata(ml::DYNAMIC);
+  return F->hasExactDefinition() && !F->hasFnAttribute(Attribute::Naked);
 }
 
 bool llvm::canTrackGlobalVariableInterprocedurally(GlobalVariable *GV) {

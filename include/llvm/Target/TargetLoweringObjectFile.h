@@ -15,6 +15,7 @@
 #define LLVM_TARGET_TARGETLOWERINGOBJECTFILE_H
 
 #include "llvm/MC/MCObjectFileInfo.h"
+#include "llvm/MC/MCRegister.h"
 #include <cstdint>
 
 namespace llvm {
@@ -56,12 +57,6 @@ protected:
   unsigned LSDAEncoding = 0;
   unsigned TTypeEncoding = 0;
   unsigned CallSiteEncoding = 0;
-
-  /// This section contains the dynamic list.
-  MCSection *DynamicSection = nullptr;
-
-  // This section contains the decorator list.
-  MCSection *DecoratorSection = nullptr;
 
   /// This section contains the static constructor pointer list.
   MCSection *StaticCtorSection = nullptr;
@@ -177,9 +172,6 @@ public:
   const MCExpr *getTTypeReference(const MCSymbolRefExpr *Sym, unsigned Encoding,
                                   MCStreamer &Streamer) const;
 
-  MCSection *getDynamicSection() const { return DynamicSection; }
-  MCSection *getDecoratorSection() const { return DecoratorSection; }
-
   virtual MCSection *getStaticCtorSection(unsigned Priority,
                                           const MCSymbol *KeySym) const {
     return StaticCtorSection;
@@ -226,6 +218,14 @@ public:
   /// Target supports TLS offset relocation in debug section?
   bool supportDebugThreadLocalLocation() const {
     return SupportDebugThreadLocalLocation;
+  }
+
+  /// Returns the register used as static base in RWPI variants.
+  virtual MCRegister getStaticBase() const { return MCRegister::NoRegister; }
+
+  /// Get the target specific RWPI relocation.
+  virtual const MCExpr *getIndirectSymViaRWPI(const MCSymbol *Sym) const {
+    return nullptr;
   }
 
   /// Get the target specific PC relative GOT entry relocation
